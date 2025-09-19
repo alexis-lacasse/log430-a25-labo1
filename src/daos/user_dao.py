@@ -14,11 +14,11 @@ class UserDAO:
             env_path = "../.env"
             print(os.path.abspath(env_path))
             load_dotenv(dotenv_path=env_path)
-            db_host = os.getenv("MYSQL_HOST")
-            db_name = os.getenv("MYSQL_DB_NAME")
-            db_user = os.getenv("DB_USERNAME")
-            db_pass = os.getenv("DB_PASSWORD")    
-            self.conn = mysql.connector.connect(host=db_host, user=db_user, password=db_pass, database=db_name) 
+            db_host = os.getenv("MYSQL_HOST", "mysql")
+            db_name = os.getenv("MYSQL_DB_NAME", "mydb")
+            db_user = os.getenv("DB_USERNAME", "user")
+            db_pass = os.getenv("DB_PASSWORD", "pass")
+            self.conn = mysql.connector.connect(host=db_host, user=db_user, password=db_pass, database=db_name)
             self.cursor = self.conn.cursor()
         except FileNotFoundError as e:
             print("Attention : Veuillez créer un fichier .env")
@@ -42,11 +42,19 @@ class UserDAO:
 
     def update(self, user):
         """ Update given user in MySQL """
-        pass
+        self.cursor.execute(
+            "UPDATE users SET name = %s, email = %s WHERE id = %s",
+            (user.name, user.email, user.id)
+        )
+        self.conn.commit()
 
     def delete(self, user_id):
         """ Delete user from MySQL with given user ID """
-        pass
+        self.cursor.execute(
+            "DELETE FROM users WHERE id = %s",
+            (user_id,)
+        )
+        self.conn.commit()
 
     def delete_all(self): #optional
         """ Empty users table in MySQL """
